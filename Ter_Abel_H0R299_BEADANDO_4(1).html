@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Beadando_1</title>
+    <style>
+        body{margin: 0; overflow: hidden;}
+        canvas {width: 100%; height: 100%;}
+    </style>
+</head>
+<body>
+
+<script type="module">
+    import * as THREE from "./js-r119/build/three.module.js"
+    import  {TrackballControls} from "./js-r119/examples/jsm/controls/TrackballControls.js";
+    import {PointLight} from "./js-r119/build/three.module.js";
+    import { OrbitControls } from './js-r119/examples/jsm/controls/OrbitControls.js';
+    import { GUI } from './js-r119/examples/jsm/libs/dat.gui.module.js';
+
+
+    var WIDTH, HEIGHT, aspectRatio;
+    var renderer;
+    var scene, camera;
+    var geometry2, geometry, material,material2,material3, mesh, mesh2;
+    var controls, controls2;
+
+    var geometry3,mesh3;
+
+
+    var ctrl;
+
+    var solarSystemGroup;
+    var sunGeometry, earthGeometry;
+    var sunMaterial, earthMaterial;
+    var sunMesh, earthMesh, earthOrbitMesh;
+    var earthOrbitAngle, earthOrbitRadius, earthOrbitFocalDistance;
+
+    var solarSystemController = function () {
+        this.earthOrbitSpeed = 0.5;
+        this.earthOrbitRatio = 0.5;
+    };
+
+    init();
+
+    animate();
+
+
+
+
+    function addControlGui( controlObject ) {
+        var gui = new GUI( { autoPlace: false });
+        gui.add( controlObject, 'earthOrbitRatio', 0.1, 1.0);
+        gui.add( controlObject, 'earthOrbitSpeed', 0.1, 1.0);
+
+        gui.domElement.style.position = 'absolute';
+        gui.domElement.style.top = '0px';
+        gui.domElement.style.right = '0px';
+        document.body.appendChild( gui.domElement );
+    }
+
+
+    function init(){
+        HEIGHT = window.innerHeight;
+        WIDTH = window.innerWidth;
+        aspectRatio = WIDTH / HEIGHT;
+
+        earthOrbitAngle = 0.0;
+        earthOrbitRadius = 50.0;
+
+
+        //
+
+
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(WIDTH,HEIGHT);
+        renderer.setClearColor(0x000000);
+        document.body.appendChild(renderer.domElement);
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
+        camera.position.z = 15;
+        camera.lookAt(scene.position);
+
+        controls = new TrackballControls(camera, renderer.domElement);
+        controls.rotateSpeed = 5.0;
+        controls.panSpeed = 1.0;
+
+        controls2 = new OrbitControls( camera, renderer.domElement );
+        controls2.rotateSpeed = 5.0;
+        controls2.panSpeed = 1.0;
+
+        var axesHelper = new THREE.AxesHelper( 500 );
+        scene.add( axesHelper );
+
+        solarSystemGroup = new THREE.Group();
+        scene.add( solarSystemGroup );
+
+        sunGeometry = geometry;
+        sunMaterial = mesh;
+        sunMesh = new THREE.Mesh( sunGeometry, sunMaterial );
+        solarSystemGroup.add( sunMesh );
+
+        var earthOrbitMaterial = new THREE.MeshBasicMaterial( { color: 0x808080, transparent: true, opacity: 0.2, side: THREE.DoubleSide } );
+        var earthOrbitGeometry = new THREE.CircleGeometry( earthOrbitRadius, 32 );
+        earthOrbitMesh = new THREE.Mesh( earthOrbitGeometry, earthOrbitMaterial );
+        earthOrbitMesh.rotation.x = 0.5 * Math.PI;
+        solarSystemGroup.add( earthOrbitMesh );
+
+        earthGeometry = new THREE.TorusKnotGeometry( 3, 0.9, 40, 6, 13, 20 );
+        earthMaterial = new THREE.MeshPhongMaterial( { color: 0x03fcf8 } );
+        earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
+        earthMesh.castShadow = true;
+        solarSystemGroup.add( earthMesh );
+
+
+        ctrl = new solarSystemController();
+        addControlGui( ctrl );
+
+
+
+
+
+
+
+
+
+        material = new THREE.MeshPhongMaterial({color: 0xd4b866, wireframe: false});
+        material2 = new THREE.MeshPhongMaterial({color: 0x258a2f, wireframe: false});
+        material3 = new THREE.MeshPhongMaterial({color: 0x92abf0, wireframe: false});
+
+
+        //////////////////////LIGHTS///////////////////////////////////////////////////
+        var amb = new THREE.AmbientLight(0x888888, 0.1);
+        scene.add(amb);
+
+        var point1 = new THREE.PointLight(0xffffff, 0.5);
+        point1.position.set(-20,8,10);
+        scene.add(point1);
+
+        var pointHelper = new THREE.PointLightHelper(point1, 12, 0xffffff);
+        scene.add(pointHelper);
+
+        var spot1 = new THREE.SpotLight(0xffffff, 1, 30,THREE.MathUtils.degToRad(30),0.2);
+        spot1.position.set(13, 0,-20);
+        scene.add(spot1);
+
+        var spotLightHelper = new THREE.SpotLightHelper(spot1, 0xffffff);
+        scene.add(spotLightHelper);
+
+
+        renderer.shadowMap.enabled = true;
+
+
+
+
+
+/////////////////////////////G E O M E T R Y///////////////////////////////////////////
+        geometry = new THREE.BoxGeometry(5,15,5,2,2,2);
+        geometry2 = new THREE.BoxGeometry(5,15,5,2,2,2);
+        geometry3 = new THREE.BoxGeometry(5,15,5,2,2,2);
+
+        mesh = new THREE.Mesh(geometry, material);
+        mesh2 = new THREE.Mesh(geometry2, material);
+        mesh3 = new THREE.Mesh(geometry3, material);
+
+
+        var geometry5 = new THREE.PlaneGeometry(25,25,1)
+        var plane = new THREE.Mesh(geometry5, material2)
+        scene.add(plane);
+        plane.rotation.x = THREE.MathUtils.degToRad(-90);
+        plane.position.y = -7.5;
+        plane.position.z = 7.5;
+
+
+        var geometry4 = new THREE.ConeGeometry( 3.5, 4, 4, 1, true, 0, 6.3);
+        var cone = new THREE.Mesh( geometry4, material3 );
+        scene.add( cone );
+
+
+
+        var material3 = new THREE.MeshPhongMaterial( {
+            color: 0xa0adaf,
+            shininess: 80,
+            specular: 0x111111,
+            side: THREE.FrontSide,
+            wireframe: false
+        } );
+
+        var geometry5 = new THREE.ConeGeometry( 3.5, 4, 4, 1, true, 0, 6.3);
+        var cone2 = new THREE.Mesh( geometry5, material3 );
+        scene.add( cone2 );
+
+        var geometry6 = new THREE.BoxGeometry( 1,1,1);
+        var box = new THREE.Mesh( geometry6, material3 );
+        scene.add( box );
+        box.position.set(-5, -5, 8);
+        box.castShadow = true;
+        box.receiveShadow = true;
+
+        cone.position.y = 9.5;
+        cone.position.x = 5;
+        cone.position.z = 2.5;
+        cone.rotation.y = THREE.MathUtils.degToRad(45);
+
+        cone2.position.y = 9.5;
+        cone2.position.x = -5;
+        cone2.position.z = 2.5;
+        cone2.rotation.y = THREE.MathUtils.degToRad(45);
+
+
+        scene.add(mesh);
+        scene.add(mesh2);
+
+        mesh.position.x=5;
+        mesh.position.z=2.5;
+
+        mesh2.position.x = 0;
+        mesh2.position.z = 7.5;
+        mesh2.position.y = -5;
+        mesh2.rotation.x = THREE.MathUtils.degToRad(90);
+
+        mesh3.position.x = -5;
+        mesh3.position.z=2.5;
+
+
+
+
+
+
+        scene.add(mesh);
+        scene.add(mesh2);
+        scene.add(mesh3);
+
+
+
+        plane.receiveShadow = true;
+
+        mesh.receiveShadow = true;
+        mesh2.receiveShadow = true;
+        mesh3.receiveShadow = true;
+        spot1.castShadow = true;
+        point1.castShadow = true;
+
+
+        mesh.castShadow = true;
+        mesh2.castShadow = true;
+        mesh3.castShadow = true;
+        cone.castShadow = true;
+        cone2.castShadow = true;
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+        var axesHelper = new THREE.AxesHelper(10);
+        scene.add(axesHelper)
+
+        window.addEventListener('resize', handleWindowResize, false);
+    }
+    
+    function handleWindowResize() {
+        HEIGHT = window.innerHeight;
+        WIDTH = window.innerWidth;
+        console.log('WIDTH=' + WIDTH + '; HEIGHT= ' + HEIGHT );
+        renderer.setSize(WIDTH, HEIGHT);
+        aspectRatio = WIDTH / HEIGHT;
+        camera.aspect = aspectRatio;
+        camera.updateProjectionMatrix();
+
+        render();
+    }
+
+    function animate(){
+        earthOrbitFocalDistance = Math.sqrt( earthOrbitRadius * earthOrbitRadius - earthOrbitRadius * earthOrbitRadius * ctrl.earthOrbitRatio * ctrl.earthOrbitRatio ) / 2.0;
+        earthOrbitMesh.position.z = earthOrbitFocalDistance;
+
+        // Ellipszis pálya kialakítása az aránytényező szerint
+        earthOrbitMesh.scale.x = ctrl.earthOrbitRatio;
+
+        // Bolygó mozgatás és új pozíciójának számítása
+        earthOrbitAngle -= ctrl.earthOrbitSpeed;
+        var radians = earthOrbitAngle * Math.PI / 180;
+        earthMesh.position.x = Math.cos( radians ) * earthOrbitRadius * ctrl.earthOrbitRatio;
+        earthMesh.position.z = Math.sin( radians ) * earthOrbitRadius + earthOrbitFocalDistance;
+
+        controls.update();
+        requestAnimationFrame( animate );
+
+        render();
+    }
+
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+</script>
+
+</body>
+</html>
