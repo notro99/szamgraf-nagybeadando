@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2f53d38c-8d13-4d7c-8998-ea58aaf0a1a4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="2f53d38c-8d13-4d7c-8998-ea58aaf0a1a4" name="Default Changelist" comment="Bastyak kesz">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Ter_Abel_H0R299_BEADANDO_4.html" beforeDir="false" afterPath="$PROJECT_DIR$/Ter_Abel_H0R299_BEADANDO_4.html" afterDir="false" />
     </list>
@@ -45,7 +44,7 @@
       <updated>1604536017893</updated>
       <workItem from="1604536019079" duration="2330000" />
       <workItem from="1606252295958" duration="5241000" />
-      <workItem from="1606258072466" duration="447000" />
+      <workItem from="1606258072466" duration="1800000" />
     </task>
     <servers />
   </component>
@@ -62,5 +61,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Bastyak kesz" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bastyak kesz" />
   </component>
 </project>

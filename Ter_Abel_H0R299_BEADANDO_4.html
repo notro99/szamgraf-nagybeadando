@@ -252,19 +252,19 @@
 
         var geometry6 = new THREE.BoxGeometry( 1,1,1);
         var box = new THREE.Mesh( geometry6, material3 );
-        scene.add( box );
+       // scene.add( box );
         box.position.set(-5, -5, 8);
         box.castShadow = true;
         box.receiveShadow = true;
 
         cone.position.y = 9.5;
         cone.position.x = 5;
-        cone.position.z = 2.5;
+        cone.position.z = 20;
         cone.rotation.y = THREE.MathUtils.degToRad(45);
 
         cone2.position.y = 9.5;
         cone2.position.x = -5;
-        cone2.position.z = 2.5;
+        cone2.position.z = 20;
         cone2.rotation.y = THREE.MathUtils.degToRad(45);
 
 
@@ -272,15 +272,15 @@
         scene.add(mesh2);
 
         mesh.position.x=5;
-        mesh.position.z=2.5;
+        mesh.position.z=20;
 
         mesh2.position.x = 0;
-        mesh2.position.z = 7.5;
+        mesh2.position.z = 25;
         mesh2.position.y = -5;
         mesh2.rotation.x = THREE.MathUtils.degToRad(90);
 
         mesh3.position.x = -5;
-        mesh3.position.z=2.5;
+        mesh3.position.z=20;
 
         mesh4.position.x = -50; //jobb fal
 
