@@ -1,135 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Beadando_1</title>
+    <meta charset=utf-8>
+    <title>Three.js Blender Geometry Example</title>
     <style>
-        body{margin: 0; overflow: hidden;}
-        canvas {width: 100%; height: 100%;}
+        body { margin: 0; overflow: hidden }
+        canvas { width: 100%; height: 100% }
     </style>
 </head>
+
 <body>
 
 <script type="module">
-    import * as THREE from "./js-r119/build/three.module.js"
+    import * as THREE from './js-r119/build/three.module.js';
+    import { OBJLoader } from './js-r119/examples/jsm/loaders/OBJLoader.js';
     import  {TrackballControls} from "./js-r119/examples/jsm/controls/TrackballControls.js";
     import {PointLight} from "./js-r119/build/three.module.js";
-    import { OrbitControls } from './js-r119/examples/jsm/controls/OrbitControls.js';
     import { GUI } from './js-r119/examples/jsm/libs/dat.gui.module.js';
 
-
+    // Globális változók
     var WIDTH, HEIGHT, aspectRatio;
-    var renderer;
     var scene, camera;
+    var groupLoaded;
+    var renderer;
+    var light1;
+    var controls;
+
     var geometry2, geometry, material,material2,material3, mesh, mesh2;
-    var controls, controls2;
-
+    var controls2;
     var geometry3,mesh3;
-
-
     var ctrl;
-
     var solarSystemGroup;
     var sunGeometry, earthGeometry;
     var sunMaterial, earthMaterial;
     var sunMesh, earthMesh, earthOrbitMesh;
     var earthOrbitAngle, earthOrbitRadius, earthOrbitFocalDistance;
 
-    var solarSystemController = function () {
-        this.earthOrbitSpeed = 0.5;
-        this.earthOrbitRatio = 0.5;
-    };
+    loader();
 
-    init();
+    function loader() {
+        var loader = new OBJLoader();
+        loader.load(
+            // Forrás URL
+            'assets/models/untitled.obj',
+            // Modell betöltése utáni függvény
+            function ( loaded ) {
+                // A loaded egy THREE.Group objektum lesz, amelynek a gyermeke(i) a mesh(-ek)!
+                groupLoaded = loaded;
+                groupLoaded.scale.set( 4, 4, 4 );
 
-    animate();
+                // Anyag hozzárendelés
+                groupLoaded.traverse( function (child ) {
+                    if ( child instanceof THREE.Mesh ) {
+                        console.log('mesh found in loaded group');
+                        child.material = new THREE.MeshLambertMaterial({color: 0x2080f0, side: THREE.DoubleSide});
+                    }
+                } );
 
-
-
-
-    function addControlGui( controlObject ) {
-        var gui = new GUI( { autoPlace: false });
-        gui.add( controlObject, 'earthOrbitRatio', 0.1, 1.0);
-        gui.add( controlObject, 'earthOrbitSpeed', 0.1, 1.0);
-
-        gui.domElement.style.position = 'absolute';
-        gui.domElement.style.top = '0px';
-        gui.domElement.style.right = '0px';
-        document.body.appendChild( gui.domElement );
+                init();
+            },
+            // Betöltés előrehaladása közben hívódik
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            // Hibás betöltés esetén
+            function ( error ) {
+                console.log( 'An error happened!', error.currentTarget.statusText, error.currentTarget.responseURL );
+            });
     }
 
+    function init() {
 
-    function init(){
+        // Böngésző ablakméret lekérése és méretarány számítása
         HEIGHT = window.innerHeight;
         WIDTH = window.innerWidth;
         aspectRatio = WIDTH / HEIGHT;
 
-        earthOrbitAngle = 0.0;
-        earthOrbitRadius = 50.0;
-
-
-        //
-
-
-        renderer = new THREE.WebGLRenderer({antialias: true});
-        renderer.setSize(WIDTH,HEIGHT);
-        renderer.setClearColor(0x000000);
-        document.body.appendChild(renderer.domElement);
-
+        // Színtér létrehozása
         scene = new THREE.Scene();
-
-        camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
-        camera.position.z = 15;
-        camera.lookAt(scene.position);
-
-        controls = new TrackballControls(camera, renderer.domElement);
-        controls.rotateSpeed = 5.0;
-        controls.panSpeed = 1.0;
-
-        controls2 = new OrbitControls( camera, renderer.domElement );
-        controls2.rotateSpeed = 5.0;
-        controls2.panSpeed = 1.0;
-
         var axesHelper = new THREE.AxesHelper( 500 );
         scene.add( axesHelper );
+        // Renderer létrehozása és DOM-hoz adása
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setSize( WIDTH, HEIGHT );
+        renderer.setClearColor( 0x202020 );
+        document.body.appendChild( renderer.domElement );
 
-        solarSystemGroup = new THREE.Group();
-        scene.add( solarSystemGroup );
+        // Kamera létrehozása és vetítési paramétereinek beállítása
+        camera = new THREE.PerspectiveCamera( 75, aspectRatio, 0.1, 1000 );
+        //camera.position.z = 15;
+        camera.position.set( 0, 0, 15 );
+        controls = new TrackballControls(camera, renderer.domElement);
+        controls.rotateSpeed = 15.0;
+        controls.panSpeed = 10.0;
+        // Betöltött objektum színtérhez adása
+        scene.add( groupLoaded );
 
-        sunGeometry = geometry;
-        sunMaterial = mesh;
-        sunMesh = new THREE.Mesh( sunGeometry, sunMaterial );
-        solarSystemGroup.add( sunMesh );
+        // Fények
+        var lightA = new THREE.AmbientLight( 0x404040 );
+        scene.add( lightA );
 
-        var earthOrbitMaterial = new THREE.MeshBasicMaterial( { color: 0x808080, transparent: true, opacity: 0.2, side: THREE.DoubleSide } );
-        var earthOrbitGeometry = new THREE.CircleGeometry( earthOrbitRadius, 32 );
-        earthOrbitMesh = new THREE.Mesh( earthOrbitGeometry, earthOrbitMaterial );
-        earthOrbitMesh.rotation.x = 0.5 * Math.PI;
-        solarSystemGroup.add( earthOrbitMesh );
+        light1 = new THREE.SpotLight( 0xffffff, 1  );
+        light1.position.set( 0, 0, 30 );
+        light1.angle = Math.PI / 4;
+        scene.add( light1 );
+        //var sLH1 = new THREE.SpotLightHelper( light1 );
+        //scene.add( sLH1 );
 
-        earthGeometry = new THREE.TorusKnotGeometry( 3, 0.9, 40, 6, 13, 20 );
-        earthMaterial = new THREE.MeshPhongMaterial( { color: 0x03fcf8 } );
-        earthMesh = new THREE.Mesh( earthGeometry, earthMaterial );
-        earthMesh.castShadow = true;
-        solarSystemGroup.add( earthMesh );
+        // Az ablak átméretezése esetén visszahívható függvény megadása
+        window.addEventListener( 'resize', handleWindowResize, false );
 
+        camera.lookAt( scene.position );
 
-        ctrl = new solarSystemController();
-        addControlGui( ctrl );
-
-
-
-
-
-
-
-
-
+        //////////////////////////MATERIALS//////////////////////////////////
         material = new THREE.MeshPhongMaterial({color: 0xd4b866, wireframe: false});
         var varfalMaterial = new THREE.MeshPhongMaterial({color: 0xababab, wireframe: false});
         material2 = new THREE.MeshPhongMaterial({color: 0x258a2f, wireframe: false});
         material3 = new THREE.MeshPhongMaterial({color: 0x92abf0, wireframe: false});
-
+        var material3 = new THREE.MeshPhongMaterial({
+            color: 0xa0adaf,
+            shininess: 80,
+            specular: 0x111111,
+            side: THREE.FrontSide,
+            wireframe: false
+        });
+        //////////////////////////MATERIALS//////////////////////////////////
 
         //////////////////////LIGHTS///////////////////////////////////////////////////
         var amb = new THREE.AmbientLight(0x888888, 0.9);
@@ -150,408 +146,382 @@
         var spotLightHelper = new THREE.SpotLightHelper(spot1, 0xffffff);
         scene.add(spotLightHelper);
 
-
         renderer.shadowMap.enabled = true;
+        //////////////////////LIGHTS///////////////////////////////////////////////////
+
+        /////////////////////////////G E O M E T R Y///////////////////////////////////////////
+        function loadThreeJSObjects() {
+
+            geometry = new THREE.BoxGeometry(5, 15, 5, 2, 2, 2);
+            geometry2 = new THREE.BoxGeometry(5, 15, 5, 2, 2, 2);
+            geometry3 = new THREE.BoxGeometry(5, 15, 5, 2, 2, 2);
+            geometry4 = new THREE.BoxGeometry(5, 20, 105, 2, 2, 2); //varfal
+            geometry5 = new THREE.BoxGeometry(10, 25, 10, 2, 2, 2); //bastyak
+            geometry6 = new THREE.BoxGeometry(2, 2, 2, 2, 2, 2);
+
+
+            mesh = new THREE.Mesh(geometry, material);
+            mesh2 = new THREE.Mesh(geometry2, material);
+            mesh3 = new THREE.Mesh(geometry3, material);
+            let mesh4 = new THREE.Mesh(geometry4, varfalMaterial);        //falak
+            var mesh5 = new THREE.Mesh(geometry4, varfalMaterial);
+            let mesh6 = new THREE.Mesh(geometry4, varfalMaterial);
+            var mesh7 = new THREE.Mesh(geometry4, varfalMaterial);
+
+
+            let mesh8 = new THREE.Mesh(geometry5, varfalMaterial);   //bastyak
+            let mesh9 = new THREE.Mesh(geometry5, varfalMaterial);
+            let mesh10 = new THREE.Mesh(geometry5, varfalMaterial);
+            let mesh11 = new THREE.Mesh(geometry5, varfalMaterial);
+
+
+            let mesh12 = new THREE.Mesh(geometry6, varfalMaterial);  //bal also bastya teglak
+            let mesh13 = new THREE.Mesh(geometry6, varfalMaterial);
+            let mesh14 = new THREE.Mesh(geometry6, varfalMaterial);
+            let mesh15 = new THREE.Mesh(geometry6, varfalMaterial);
+            let mesh16 = new THREE.Mesh(geometry6, varfalMaterial);
+            let mesh17 = new THREE.Mesh(geometry6, varfalMaterial);
+            let mesh18 = new THREE.Mesh(geometry6, varfalMaterial);
+            let mesh19 = new THREE.Mesh(geometry6, varfalMaterial);
+            let mesh20 = new THREE.Mesh(geometry6, varfalMaterial);
+
+
+            let b1 = new THREE.Mesh(geometry6, varfalMaterial);         //bal felso
+            let b2 = new THREE.Mesh(geometry6, varfalMaterial);
+            let b3 = new THREE.Mesh(geometry6, varfalMaterial);
+            let b4 = new THREE.Mesh(geometry6, varfalMaterial);
+            let b5 = new THREE.Mesh(geometry6, varfalMaterial);
+            let b6 = new THREE.Mesh(geometry6, varfalMaterial);
+            let b7 = new THREE.Mesh(geometry6, varfalMaterial);
+            let b8 = new THREE.Mesh(geometry6, varfalMaterial);
+            let b9 = new THREE.Mesh(geometry6, varfalMaterial);
+
+            let j1 = new THREE.Mesh(geometry6, varfalMaterial);         //jobb felso
+            let j2 = new THREE.Mesh(geometry6, varfalMaterial);
+            let j3 = new THREE.Mesh(geometry6, varfalMaterial);
+            let j4 = new THREE.Mesh(geometry6, varfalMaterial);
+            let j5 = new THREE.Mesh(geometry6, varfalMaterial);
+            let j6 = new THREE.Mesh(geometry6, varfalMaterial);
+            let j7 = new THREE.Mesh(geometry6, varfalMaterial);
+            let j8 = new THREE.Mesh(geometry6, varfalMaterial);
+            let j9 = new THREE.Mesh(geometry6, varfalMaterial);
+
+            let jf1 = new THREE.Mesh(geometry6, varfalMaterial);         //jobb also
+            let jf2 = new THREE.Mesh(geometry6, varfalMaterial);
+            let jf3 = new THREE.Mesh(geometry6, varfalMaterial);
+            let jf4 = new THREE.Mesh(geometry6, varfalMaterial);
+            let jf5 = new THREE.Mesh(geometry6, varfalMaterial);
+            let jf6 = new THREE.Mesh(geometry6, varfalMaterial);
+            let jf7 = new THREE.Mesh(geometry6, varfalMaterial);
+            let jf8 = new THREE.Mesh(geometry6, varfalMaterial);
+            let jf9 = new THREE.Mesh(geometry6, varfalMaterial);
+
+
+            var geometry5 = new THREE.PlaneGeometry(300, 300, 1);
+            var plane = new THREE.Mesh(geometry5, material2);
+            scene.add(plane);
+            plane.rotation.x = THREE.MathUtils.degToRad(-90);
+            plane.position.y = -7.5;
+            plane.position.z = 7.5;
+
+
+            var geometry4 = new THREE.ConeGeometry(3.5, 4, 4, 1, true, 0, 6.3);
+            var cone = new THREE.Mesh(geometry4, material3);
+            scene.add(cone);
+
+
+            var geometry5 = new THREE.ConeGeometry(3.5, 4, 4, 1, true, 0, 6.3);
+            var cone2 = new THREE.Mesh(geometry5, material3);
+            scene.add(cone2);
+
+            var geometry6 = new THREE.BoxGeometry(1, 1, 1);
+            var box = new THREE.Mesh(geometry6, material3);
+            // scene.add( box );
+            box.position.set(-5, -5, 8);
+            box.castShadow = true;
+            box.receiveShadow = true;
+
+            cone.position.y = 9.5;
+            cone.position.x = 5;
+            cone.position.z = 20;
+            cone.rotation.y = THREE.MathUtils.degToRad(45);
+
+            cone2.position.y = 9.5;
+            cone2.position.x = -5;
+            cone2.position.z = 20;
+            cone2.rotation.y = THREE.MathUtils.degToRad(45);
 
 
+            scene.add(mesh);
+            scene.add(mesh2);
 
+            mesh.position.x = 5;
+            mesh.position.z = 20;
 
+            mesh2.position.x = 0;
+            mesh2.position.z = 25;
+            mesh2.position.y = -5;
+            mesh2.rotation.x = THREE.MathUtils.degToRad(90);
 
-/////////////////////////////G E O M E T R Y///////////////////////////////////////////
-        geometry = new THREE.BoxGeometry(5,15,5,2,2,2);
-        geometry2 = new THREE.BoxGeometry(5,15,5,2,2,2);
-        geometry3 = new THREE.BoxGeometry(5,15,5,2,2,2);
-        geometry4 = new THREE.BoxGeometry(5,20,105,2,2,2); //varfal
-        geometry5 = new THREE.BoxGeometry(10,25,10,2,2,2); //bastyak
-
-        geometry6 = new THREE.BoxGeometry(2,2,2,2,2,2);
-
-
-        mesh = new THREE.Mesh(geometry, material);
-        mesh2 = new THREE.Mesh(geometry2, material);
-        mesh3 = new THREE.Mesh(geometry3, material);
-        let mesh4 = new THREE.Mesh(geometry4, varfalMaterial);        //falak
-        var mesh5 = new THREE.Mesh(geometry4, varfalMaterial);
-        let mesh6 = new THREE.Mesh(geometry4, varfalMaterial);
-        var mesh7 = new THREE.Mesh(geometry4, varfalMaterial);
+            mesh3.position.x = -5;
+            mesh3.position.z = 20;
 
+            mesh4.position.x = -50; //jobb fal
 
-        let mesh8 = new THREE.Mesh(geometry5, varfalMaterial);   //bastyak
-        let mesh9 = new THREE.Mesh(geometry5, varfalMaterial);
-        let mesh10 = new THREE.Mesh(geometry5, varfalMaterial);
-        let mesh11 = new THREE.Mesh(geometry5, varfalMaterial);
+            mesh5.position.x = 50;     //bal fal
 
-
-        let mesh12 = new THREE.Mesh(geometry6, varfalMaterial);  //bal also bastya teglak
-        let mesh13 = new THREE.Mesh(geometry6, varfalMaterial);
-        let mesh14 = new THREE.Mesh(geometry6, varfalMaterial);
-        let mesh15 = new THREE.Mesh(geometry6, varfalMaterial);
-        let mesh16 = new THREE.Mesh(geometry6, varfalMaterial);
-        let mesh17 = new THREE.Mesh(geometry6, varfalMaterial);
-        let mesh18 = new THREE.Mesh(geometry6, varfalMaterial);
-        let mesh19 = new THREE.Mesh(geometry6, varfalMaterial);
-        let mesh20 = new THREE.Mesh(geometry6, varfalMaterial);
+            mesh6.position.z = 50;
+            mesh6.rotation.y = THREE.MathUtils.degToRad(90);
 
+            mesh7.position.z = -50;
+            mesh7.rotation.y = THREE.MathUtils.degToRad(90);
 
-        let b1 = new THREE.Mesh(geometry6, varfalMaterial);         //bal felso
-        let b2 = new THREE.Mesh(geometry6, varfalMaterial);
-        let b3 = new THREE.Mesh(geometry6, varfalMaterial);
-        let b4 = new THREE.Mesh(geometry6, varfalMaterial);
-        let b5 = new THREE.Mesh(geometry6, varfalMaterial);
-        let b6 = new THREE.Mesh(geometry6, varfalMaterial);
-        let b7 = new THREE.Mesh(geometry6, varfalMaterial);
-        let b8 = new THREE.Mesh(geometry6, varfalMaterial);
-        let b9 = new THREE.Mesh(geometry6, varfalMaterial);
+            mesh8.position.x = 50;
+            mesh8.position.z = 50;
+            mesh8.position.y = 2.5;
 
-        let j1 = new THREE.Mesh(geometry6, varfalMaterial);         //jobb felso
-        let j2 = new THREE.Mesh(geometry6, varfalMaterial);
-        let j3 = new THREE.Mesh(geometry6, varfalMaterial);
-        let j4 = new THREE.Mesh(geometry6, varfalMaterial);
-        let j5 = new THREE.Mesh(geometry6, varfalMaterial);
-        let j6 = new THREE.Mesh(geometry6, varfalMaterial);
-        let j7 = new THREE.Mesh(geometry6, varfalMaterial);
-        let j8 = new THREE.Mesh(geometry6, varfalMaterial);
-        let j9 = new THREE.Mesh(geometry6, varfalMaterial);
+            mesh9.position.x = -50;
+            mesh9.position.z = 50;
+            mesh9.position.y = 2.5;
 
-        let jf1 = new THREE.Mesh(geometry6, varfalMaterial);         //jobb also
-        let jf2 = new THREE.Mesh(geometry6, varfalMaterial);
-        let jf3 = new THREE.Mesh(geometry6, varfalMaterial);
-        let jf4 = new THREE.Mesh(geometry6, varfalMaterial);
-        let jf5 = new THREE.Mesh(geometry6, varfalMaterial);
-        let jf6 = new THREE.Mesh(geometry6, varfalMaterial);
-        let jf7 = new THREE.Mesh(geometry6, varfalMaterial);
-        let jf8 = new THREE.Mesh(geometry6, varfalMaterial);
-        let jf9 = new THREE.Mesh(geometry6, varfalMaterial);
+            mesh10.position.x = 50;
+            mesh10.position.z = -50;
+            mesh10.position.y = 2.5;
 
+            mesh11.position.x = -50;
+            mesh11.position.z = -50;
+            mesh11.position.y = 2.5;
 
-        var geometry5 = new THREE.PlaneGeometry(300,300,1);
-        var plane = new THREE.Mesh(geometry5, material2);
-        scene.add(plane);
-        plane.rotation.x = THREE.MathUtils.degToRad(-90);
-        plane.position.y = -7.5;
-        plane.position.z = 7.5;
 
+            mesh12.position.x = -54;
+            mesh12.position.z = -54;
+            mesh12.position.y = 16;
 
-        var geometry4 = new THREE.ConeGeometry( 3.5, 4, 4, 1, true, 0, 6.3);
-        var cone = new THREE.Mesh( geometry4, material3 );
-        scene.add( cone );
+            mesh13.position.x = -54;
+            mesh13.position.z = -50;
+            mesh13.position.y = 16;
 
+            mesh14.position.x = -50;
+            mesh14.position.z = -54;
+            mesh14.position.y = 16;
 
+            mesh15.position.x = -46;
+            mesh15.position.z = -54;
+            mesh15.position.y = 16;
 
-        var material3 = new THREE.MeshPhongMaterial( {
-            color: 0xa0adaf,
-            shininess: 80,
-            specular: 0x111111,
-            side: THREE.FrontSide,
-            wireframe: false
-        } );
+            mesh16.position.x = -46;
+            mesh16.position.z = -50;
+            mesh16.position.y = 16;
 
-        var geometry5 = new THREE.ConeGeometry( 3.5, 4, 4, 1, true, 0, 6.3);
-        var cone2 = new THREE.Mesh( geometry5, material3 );
-        scene.add( cone2 );
+            mesh17.position.x = -46;
+            mesh17.position.z = -46;
+            mesh17.position.y = 16;
 
-        var geometry6 = new THREE.BoxGeometry( 1,1,1);
-        var box = new THREE.Mesh( geometry6, material3 );
-       // scene.add( box );
-        box.position.set(-5, -5, 8);
-        box.castShadow = true;
-        box.receiveShadow = true;
+            mesh18.position.x = -50;
+            mesh18.position.z = -46;
+            mesh18.position.y = 16;
 
-        cone.position.y = 9.5;
-        cone.position.x = 5;
-        cone.position.z = 20;
-        cone.rotation.y = THREE.MathUtils.degToRad(45);
+            mesh19.position.x = -54;
+            mesh19.position.z = -46;
+            mesh19.position.y = 16;
 
-        cone2.position.y = 9.5;
-        cone2.position.x = -5;
-        cone2.position.z = 20;
-        cone2.rotation.y = THREE.MathUtils.degToRad(45);
 
+            b1.position.x = 54;
+            b1.position.z = 54;
+            b1.position.y = 16;
 
-        scene.add(mesh);
-        scene.add(mesh2);
+            b2.position.x = 54;
+            b2.position.z = 50;
+            b2.position.y = 16;
 
-        mesh.position.x=5;
-        mesh.position.z=20;
+            b3.position.x = 54;
+            b3.position.z = 46;
+            b3.position.y = 16;
 
-        mesh2.position.x = 0;
-        mesh2.position.z = 25;
-        mesh2.position.y = -5;
-        mesh2.rotation.x = THREE.MathUtils.degToRad(90);
+            b4.position.x = 50;
+            b4.position.z = 46;
+            b4.position.y = 16;
 
-        mesh3.position.x = -5;
-        mesh3.position.z=20;
+            b5.position.x = 46;
+            b5.position.z = 46;
+            b5.position.y = 16;
 
-        mesh4.position.x = -50; //jobb fal
-
-        mesh5.position.x = 50;     //bal fal
-
-        mesh6.position.z = 50;
-        mesh6.rotation.y = THREE.MathUtils.degToRad(90);
-
-        mesh7.position.z = -50;
-        mesh7.rotation.y = THREE.MathUtils.degToRad(90);
-
-        mesh8.position.x = 50;
-        mesh8.position.z = 50;
-        mesh8.position.y = 2.5;
-
-        mesh9.position.x = -50;
-        mesh9.position.z = 50;
-        mesh9.position.y = 2.5;
-
-        mesh10.position.x = 50;
-        mesh10.position.z = -50;
-        mesh10.position.y = 2.5;
-
-        mesh11.position.x = -50;
-        mesh11.position.z = -50;
-        mesh11.position.y = 2.5;
-
-
-
-
-        mesh12.position.x = -54;
-        mesh12.position.z = -54;
-        mesh12.position.y = 16;
-
-        mesh13.position.x = -54;
-        mesh13.position.z = -50;
-        mesh13.position.y = 16;
-
-        mesh14.position.x = -50;
-        mesh14.position.z = -54;
-        mesh14.position.y = 16;
-
-        mesh15.position.x = -46;
-        mesh15.position.z = -54;
-        mesh15.position.y = 16;
-
-        mesh16.position.x = -46;
-        mesh16.position.z = -50;
-        mesh16.position.y = 16;
-
-        mesh17.position.x = -46;
-        mesh17.position.z = -46;
-        mesh17.position.y = 16;
-
-        mesh18.position.x = -50;
-        mesh18.position.z = -46;
-        mesh18.position.y = 16;
-
-        mesh19.position.x = -54;
-        mesh19.position.z = -46;
-        mesh19.position.y = 16;
-
-
-        b1.position.x = 54;
-        b1.position.z = 54;
-        b1.position.y = 16;
-
-        b2.position.x = 54;
-        b2.position.z = 50;
-        b2.position.y = 16;
-
-        b3.position.x = 54;
-        b3.position.z = 46;
-        b3.position.y = 16;
-
-        b4.position.x = 50;
-        b4.position.z = 46;
-        b4.position.y = 16;
-
-        b5.position.x = 46;
-        b5.position.z = 46;
-        b5.position.y = 16;
-
-        b6.position.x = 46;
-        b6.position.z = 50;
-        b6.position.y = 16;
-
-        b7.position.x = 50;
-        b7.position.z = 54;
-        b7.position.y = 16;
-
-        b8.position.x = 46;
-        b8.position.z = 54;
-        b8.position.y = 16;
-
-
-        j1.position.x = -54;
-        j1.position.z = 54;
-        j1.position.y = 16;
-
-        j2.position.x = -54;
-        j2.position.z = 50;
-        j2.position.y = 16;
-
-        j3.position.x = -54;
-        j3.position.z = 46;
-        j3.position.y = 16;
-
-        j4.position.x = -50;
-        j4.position.z = 46;
-        j4.position.y = 16;
-
-        j5.position.x = -46;
-        j5.position.z = 46;
-        j5.position.y = 16;
-
-        j6.position.x = -46;
-        j6.position.z = 50;
-        j6.position.y = 16;
-
-        j7.position.x = -50;
-        j7.position.z = 54;
-        j7.position.y = 16;
-
-        j8.position.x = -46;
-        j8.position.z = 54;
-        j8.position.y = 16;
-
-        jf1.position.x = 54;
-        jf1.position.z = -54;
-        jf1.position.y = 16;
-
-        jf2.position.x = 54;
-        jf2.position.z = -50;
-        jf2.position.y = 16;
-
-        jf3.position.x = 54;
-        jf3.position.z = -46;
-        jf3.position.y = 16;
-
-        jf4.position.x = 50;
-        jf4.position.z = -46;
-        jf4.position.y = 16;
-
-        jf5.position.x = 46;
-        jf5.position.z = -46;
-        jf5.position.y = 16;
-
-        jf6.position.x = 46;
-        jf6.position.z = -50;
-        jf6.position.y = 16;
-
-        jf7.position.x = 50;
-        jf7.position.z = -54;
-        jf7.position.y = 16;
-
-        jf8.position.x = 46;
-        jf8.position.z = -54;
-        jf8.position.y = 16;
-
-        scene.add(mesh);
-        scene.add(mesh2);
-        scene.add(mesh3);
-        scene.add(mesh4);
-        scene.add(mesh5);
-        scene.add(mesh6);
-        scene.add(mesh7);
-        scene.add(mesh8);
-        scene.add(mesh9);
-        scene.add(mesh10);
-        scene.add(mesh11);
-        scene.add(mesh12);
-        scene.add(mesh13);
-        scene.add(mesh14);
-        scene.add(mesh15);
-        scene.add(mesh16);
-        scene.add(mesh17);
-        scene.add(mesh18);
-        scene.add(mesh19);
-        scene.add(mesh20);
-
-        scene.add(b1);
-        scene.add(b2);
-        scene.add(b3);
-        scene.add(b4);
-        scene.add(b5);
-        scene.add(b6);
-        scene.add(b7);
-        scene.add(b8);
-        scene.add(b9);
-
-        scene.add(j1);
-        scene.add(j2);
-        scene.add(j3);
-        scene.add(j4);
-        scene.add(j5);
-        scene.add(j6);
-        scene.add(j7);
-        scene.add(j8);
-        scene.add(j9);
-
-        scene.add(jf1);
-        scene.add(jf2);
-        scene.add(jf3);
-        scene.add(jf4);
-        scene.add(jf5);
-        scene.add(jf6);
-        scene.add(jf7);
-        scene.add(jf8);
-        scene.add(jf9);
-
-        plane.receiveShadow = true;
-
-        mesh.receiveShadow = true;
-        mesh2.receiveShadow = true;
-        mesh3.receiveShadow = true;
-        spot1.castShadow = true;
-        point1.castShadow = true;
-
-
-        mesh.castShadow = true;
-        mesh2.castShadow = true;
-        mesh3.castShadow = true;
-        cone.castShadow = true;
-        cone2.castShadow = true;
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-        var axesHelper = new THREE.AxesHelper(10);
-        scene.add(axesHelper);
-
-        window.addEventListener('resize', handleWindowResize, false);
+            b6.position.x = 46;
+            b6.position.z = 50;
+            b6.position.y = 16;
+
+            b7.position.x = 50;
+            b7.position.z = 54;
+            b7.position.y = 16;
+
+            b8.position.x = 46;
+            b8.position.z = 54;
+            b8.position.y = 16;
+
+
+            j1.position.x = -54;
+            j1.position.z = 54;
+            j1.position.y = 16;
+
+            j2.position.x = -54;
+            j2.position.z = 50;
+            j2.position.y = 16;
+
+            j3.position.x = -54;
+            j3.position.z = 46;
+            j3.position.y = 16;
+
+            j4.position.x = -50;
+            j4.position.z = 46;
+            j4.position.y = 16;
+
+            j5.position.x = -46;
+            j5.position.z = 46;
+            j5.position.y = 16;
+
+            j6.position.x = -46;
+            j6.position.z = 50;
+            j6.position.y = 16;
+
+            j7.position.x = -50;
+            j7.position.z = 54;
+            j7.position.y = 16;
+
+            j8.position.x = -46;
+            j8.position.z = 54;
+            j8.position.y = 16;
+
+            jf1.position.x = 54;
+            jf1.position.z = -54;
+            jf1.position.y = 16;
+
+            jf2.position.x = 54;
+            jf2.position.z = -50;
+            jf2.position.y = 16;
+
+            jf3.position.x = 54;
+            jf3.position.z = -46;
+            jf3.position.y = 16;
+
+            jf4.position.x = 50;
+            jf4.position.z = -46;
+            jf4.position.y = 16;
+
+            jf5.position.x = 46;
+            jf5.position.z = -46;
+            jf5.position.y = 16;
+
+            jf6.position.x = 46;
+            jf6.position.z = -50;
+            jf6.position.y = 16;
+
+            jf7.position.x = 50;
+            jf7.position.z = -54;
+            jf7.position.y = 16;
+
+            jf8.position.x = 46;
+            jf8.position.z = -54;
+            jf8.position.y = 16;
+
+            scene.add(mesh);
+            scene.add(mesh2);
+            scene.add(mesh3);
+            scene.add(mesh4);
+            scene.add(mesh5);
+            scene.add(mesh6);
+            scene.add(mesh7);
+            scene.add(mesh8);
+            scene.add(mesh9);
+            scene.add(mesh10);
+            scene.add(mesh11);
+            scene.add(mesh12);
+            scene.add(mesh13);
+            scene.add(mesh14);
+            scene.add(mesh15);
+            scene.add(mesh16);
+            scene.add(mesh17);
+            scene.add(mesh18);
+            scene.add(mesh19);
+            scene.add(mesh20);
+
+            scene.add(b1);
+            scene.add(b2);
+            scene.add(b3);
+            scene.add(b4);
+            scene.add(b5);
+            scene.add(b6);
+            scene.add(b7);
+            scene.add(b8);
+            scene.add(b9);
+
+            scene.add(j1);
+            scene.add(j2);
+            scene.add(j3);
+            scene.add(j4);
+            scene.add(j5);
+            scene.add(j6);
+            scene.add(j7);
+            scene.add(j8);
+            scene.add(j9);
+
+            scene.add(jf1);
+            scene.add(jf2);
+            scene.add(jf3);
+            scene.add(jf4);
+            scene.add(jf5);
+            scene.add(jf6);
+            scene.add(jf7);
+            scene.add(jf8);
+            scene.add(jf9);
+
+            plane.receiveShadow = true;
+
+            mesh.receiveShadow = true;
+            mesh2.receiveShadow = true;
+            mesh3.receiveShadow = true;
+            spot1.castShadow = true;
+            point1.castShadow = true;
+
+
+            mesh.castShadow = true;
+            mesh2.castShadow = true;
+            mesh3.castShadow = true;
+            cone.castShadow = true;
+            cone2.castShadow = true;
+        }
+        loadThreeJSObjects();
+        /////////////////////////////G E O M E T R Y///////////////////////////////////////////
+
+        animate();
     }
-    
+
     function handleWindowResize() {
+        // Az ablak átméretezése esetén a kamera vetítési paraméterek újraszámolása
         HEIGHT = window.innerHeight;
         WIDTH = window.innerWidth;
-        console.log('WIDTH=' + WIDTH + '; HEIGHT= ' + HEIGHT );
-        renderer.setSize(WIDTH, HEIGHT);
-        aspectRatio = WIDTH / HEIGHT;
-        camera.aspect = aspectRatio;
+        renderer.setSize( WIDTH, HEIGHT );
+        camera.aspect = WIDTH / HEIGHT;
         camera.updateProjectionMatrix();
 
         render();
     }
 
-    function animate(){
-        earthOrbitFocalDistance = Math.sqrt( earthOrbitRadius * earthOrbitRadius - earthOrbitRadius * earthOrbitRadius * ctrl.earthOrbitRatio * ctrl.earthOrbitRatio ) / 2.0;
-        earthOrbitMesh.position.z = earthOrbitFocalDistance;
-
-        // Ellipszis pálya kialakítása az aránytényező szerint
-        earthOrbitMesh.scale.x = ctrl.earthOrbitRatio;
-
-        // Bolygó mozgatás és új pozíciójának számítása
-        earthOrbitAngle -= ctrl.earthOrbitSpeed;
-        var radians = earthOrbitAngle * Math.PI / 180;
-        earthMesh.position.x = Math.cos( radians ) * earthOrbitRadius * ctrl.earthOrbitRatio;
-        earthMesh.position.z = Math.sin( radians ) * earthOrbitRadius + earthOrbitFocalDistance;
-
+    function animate() {
+        // Újabb képkocka rajzolásának kérése.
+        // Maximálisan 60 FPS-t biztosít a rendszer.
+        requestAnimationFrame(animate);
         controls.update();
-        requestAnimationFrame( animate );
+        // Objektum elforgatási paraméterének módosítása
 
         render();
     }
 
-
     function render() {
+        // 3D -> 2D vetített kép kiszámítása.
+        // scene 3D színtér képe a camera kamera szemszögéből.
         renderer.render(scene, camera);
     }
-</script>
 
+</script>
 </body>
 </html>
