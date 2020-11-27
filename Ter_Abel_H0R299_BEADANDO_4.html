@@ -18,6 +18,7 @@
     import  {TrackballControls} from "./js-r119/examples/jsm/controls/TrackballControls.js";
     import {PointLight} from "./js-r119/build/three.module.js";
     import { GUI } from './js-r119/examples/jsm/libs/dat.gui.module.js';
+    import { MTLLoader } from './js-r119/examples/jsm/loaders/MTLLoader.js';
 
     // Globális változók
     var WIDTH, HEIGHT, aspectRatio;
@@ -39,34 +40,29 @@
 
     loader();
 
+
     function loader() {
-        var loader = new OBJLoader();
-        loader.load(
-            // Forrás URL
-            'assets/models/untitled.obj',
-            // Modell betöltése utáni függvény
-            function ( loaded ) {
-                // A loaded egy THREE.Group objektum lesz, amelynek a gyermeke(i) a mesh(-ek)!
-                groupLoaded = loaded;
-                groupLoaded.scale.set( 4, 4, 4 );
+        var OBJFile = 'assets/models/erdo.obj';
+        var MTLFile = 'assets/models/erdo.mtl';
 
-                // Anyag hozzárendelés
-                groupLoaded.traverse( function (child ) {
-                    if ( child instanceof THREE.Mesh ) {
-                        console.log('mesh found in loaded group');
-                        child.material = new THREE.MeshLambertMaterial({color: 0x2080f0, side: THREE.DoubleSide});
-                    }
-                } );
+        new MTLLoader()
+            .load(MTLFile, function (materials) {
+                materials.preload();
+                new OBJLoader()
+                    .setMaterials(materials)
+                    .load(OBJFile, function (object) {
+                        groupLoaded = object;
+                        console.log(object);
 
-                init();
-            },
-            // Betöltés előrehaladása közben hívódik
-            function ( xhr ) {
-                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-            },
-            // Hibás betöltés esetén
-            function ( error ) {
-                console.log( 'An error happened!', error.currentTarget.statusText, error.currentTarget.responseURL );
+                        object.traverse(function (child) {
+                            if (child instanceof THREE.Mesh) {
+                                child.scale.set(1,1, 1);
+                                groupLoaded.position.set(-60, -5, -80);
+                            }
+                        });
+
+                        init();
+                    });
             });
     }
 
@@ -96,6 +92,7 @@
         controls.panSpeed = 10.0;
         // Betöltött objektum színtérhez adása
         scene.add( groupLoaded );
+
 
         // Fények
         var lightA = new THREE.AmbientLight( 0x404040 );
