@@ -143,13 +143,11 @@
         scene.add(hazakLoaded);
 
         // Fények
-        var lightA = new THREE.AmbientLight( 0x404040 );
-        scene.add( lightA );
 
         light1 = new THREE.SpotLight( 0xffffff, 1  );
         light1.position.set( 0, 0, 30 );
         light1.angle = Math.PI / 4;
-        scene.add( light1 );
+       // scene.add( light1 );
         //var sLH1 = new THREE.SpotLightHelper( light1 );
         //scene.add( sLH1 );
 
@@ -186,7 +184,7 @@
 
         var spot1 = new THREE.SpotLight(0xffffff, 1, 30,THREE.MathUtils.degToRad(30),0.2);
         spot1.position.set(30, 30,30);
-        scene.add(spot1);
+       // scene.add(spot1);
 
         var spotLightHelper = new THREE.SpotLightHelper(spot1, 0xffffff);
         scene.add(spotLightHelper);
