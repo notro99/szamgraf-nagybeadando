@@ -7,10 +7,41 @@
     <style>
         body { margin: 0; overflow: hidden }
         canvas { width: 100%; height: 100% }
+
+        #caption {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 50%;
+            text-align: left;
+            z-index: 100;
+            display:block;
+            color: yellow;
+        }
+        #info {
+            position: absolute;
+            top: 30px;
+            left: 10px;
+            width: 50%;
+            text-align: left;
+            z-index: 100;
+            display:block;
+            color: cyan;
+            opacity: 1.0;
+        }
     </style>
 </head>
 
 <body>
+<div id="caption">
+    Készítette:
+</div>
+<div id="info">
+    <p id="name">Tér Ábel</p>
+    <p id="id">H0R299</p>
+    <p id="szak">Mérnökinformatika</p>
+    <p id="idopont">2020/2021 - I.</p>
+</div>
 
 <script type="module">
     import * as THREE from './js-r119/build/three.module.js';
@@ -141,6 +172,8 @@
         scene.add( groupLoaded );
         scene.add(szekerLoaded);
         scene.add(hazakLoaded);
+
+
 
         // Fények
 
@@ -531,6 +564,13 @@
             mesh3.castShadow = true;
             cone.castShadow = true;
             cone2.castShadow = true;
+
+            groupLoaded.receiveShadow = true;
+            szekerLoaded.receiveShadow = true;
+            hazakLoaded.receiveShadow = true;
+            groupLoaded.castShadow = true;
+            szekerLoaded.castShadow = true;
+            hazakLoaded.castShadow = true;
         }
         loadThreeJSObjects();
         /////////////////////////////G E O M E T R Y///////////////////////////////////////////
