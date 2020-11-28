@@ -45,7 +45,7 @@
         <p id="idopont">2020/2021 - I.</p>
         <p id="gomboki" style="color: #2eff15;">I - info panel megjelenítés</p>
         <p id="gombok1"style="color: #2eff15;">1 - Éjszaka</p>
-        <p id="gombok2"style="color: #2eff15;">1 - Nappal</p>
+        <p id="gombok2"style="color: #2eff15;">2 - Nappal</p>
     </div>
 </div>
 <script type="module">
@@ -58,22 +58,23 @@
     import {PointLight} from "./js-r119/build/three.module.js";
     import { GUI } from './js-r119/examples/jsm/libs/dat.gui.module.js';
     import { MTLLoader } from './js-r119/examples/jsm/loaders/MTLLoader.js';
+    import Stats from './js-r119/examples/jsm/libs/stats.module.js';
+    import {TWEEN} from './js-r119/examples/jsm/libs/tween.module.min.js';
 
     // Globális változók
     var WIDTH, HEIGHT, aspectRatio;
     var scene, camera;
-    var groupLoaded,szekerLoaded,hazakLoaded,pitLoaded,langLoaded;
+    var groupLoaded,szekerLoaded,hazakLoaded,pitLoaded,langLoaded, nyaktiloLoaded, pengeLoaded;
     var renderer;
     var amb, point1,tuzFeny;
     var controls;
-
+    var szekerControl;
     var geometry2, geometry, material,material2,material3, mesh, mesh2;
     var controls2;
     var geometry3,mesh3;
-
-
+    var isTweening = false;
     var infoPanel = document.getElementById("info-panel");
-
+    var timer = 0;
     loaderErdo();
 
     function loaderErdo() {
@@ -115,8 +116,8 @@
 
                         object.traverse(function (child) {
                             if (child instanceof THREE.Mesh) {
-                                child.scale.set(1,1, 1);
-                                szekerLoaded.position.set(-40, -7.75, -30);
+                                child.scale.set(2,2, 2);
+                                szekerLoaded.position.set(-35, -7.75, -30);
                             }
                         });
 
@@ -194,6 +195,56 @@
                             }
                         });
 
+                        loadNyaktilo();
+                    });
+            });
+    }
+
+    function loadNyaktilo() {
+        var OBJFile = 'assets/models/nyaktilo.obj';
+        var MTLFile = 'assets/models/nyaktilo.mtl';
+
+        new MTLLoader()
+            .load(MTLFile, function (materials) {
+                materials.preload();
+                new OBJLoader()
+                    .setMaterials(materials)
+                    .load(OBJFile, function (object) {
+                        nyaktiloLoaded = object;
+                        console.log(object);
+
+                        object.traverse(function (child) {
+                            if (child instanceof THREE.Mesh) {
+                                child.scale.set(1,1, 1);
+                                nyaktiloLoaded.position.set(-30, -6, 20);
+                            }
+                        });
+
+                        loadPenge();
+                    });
+            });
+    }
+
+    function loadPenge() {
+        var OBJFile = 'assets/models/penge.obj';
+        var MTLFile = 'assets/models/penge.mtl';
+
+        new MTLLoader()
+            .load(MTLFile, function (materials) {
+                materials.preload();
+                new OBJLoader()
+                    .setMaterials(materials)
+                    .load(OBJFile, function (object) {
+                        pengeLoaded = object;
+                        console.log(object);
+
+                        object.traverse(function (child) {
+                            if (child instanceof THREE.Mesh) {
+                                child.scale.set(1,1, 1);
+                                pengeLoaded.position.set(-30, -6, 20);
+                            }
+                        });
+
                         init();
                     });
             });
@@ -229,9 +280,10 @@
         scene.add(szekerLoaded);
         scene.add(hazakLoaded);
         scene.add(pitLoaded);
-
-
-
+        scene.add(nyaktiloLoaded);
+        scene.add(pengeLoaded);
+        szekerLoaded.name='szeker';
+        pengeLoaded.name='penge';
 
 
         // Az ablak átméretezése esetén visszahívható függvény megadása
@@ -647,7 +699,64 @@
         loadThreeJSObjects();
         /////////////////////////////G E O M E T R Y///////////////////////////////////////////
 
+
+        /////////////////////////////////MOZGAS//////////////////////////////////////////////////
+
+        szekerControl = new function () {
+            this.fejezes = function () {
+                lefejezes(scene.getObjectByName('penge'), 0, -22, 1000);
+            };
+        };
+        addControlGui(szekerControl);
+
         animate();
+    }
+
+    // További easing függvény paraméterek:
+    // http://sole.github.io/tween.js/examples/03_graphs.html
+    function lefejezes(object, start, end, time) {
+        if (!isTweening) {
+            new TWEEN.Tween(object.position)
+                .to({ y: end }, time )
+                .easing(TWEEN.Easing.Quadratic.InOut)
+                .onStart(function () {
+                    isTweening = true;
+                    object.position.y = start;
+                })
+                .onUpdate(function() {
+                    console.log(object.position.y);
+                })
+                .onComplete(    function takeStepLeft(object, start, end, time) {
+                    if (!isTweening) {
+                        new TWEEN.Tween(object.position)
+                            .to({ y: end }, time )
+                            .easing(TWEEN.Easing.Bounce.Out)
+                            .onStart(function () {
+                                isTweening = true;
+                                object.position.y = start;
+                            })
+                            .onUpdate(function() {
+                                console.log(object.position.y);
+                            })
+                            .onComplete(function () {
+                                // A végső eltolási értékek alkalmazása
+                                object.updateMatrix();
+                                object.geometry.applyMatrix4( object.matrix );
+                                object.position.set( 0, 0, 0 );
+                                object.updateMatrix();
+                                isTweening = false;
+                            })
+                            .start();
+                    }
+                })
+                .start();
+        }
+    }
+
+
+    function addControlGui(controlObject) {
+        var gui = new GUI();
+        gui.add(controlObject, 'fejezes').name('Guillotinet');
     }
 
 
@@ -703,12 +812,22 @@
     }
 
     function animate() {
-        // Újabb képkocka rajzolásának kérése.
-        // Maximálisan 60 FPS-t biztosít a rendszer.
         requestAnimationFrame(animate);
+        TWEEN.update();
         controls.update();
-        // Objektum elforgatási paraméterének módosítása
 
+        if ( timer < 150 ){
+            szekerLoaded.position.x += 0.1;
+            timer++;
+            //console.log(counter);
+        } else if ( timer >= 150 ){
+            szekerLoaded.position.x -= 0.1;
+            timer++;
+        }
+
+        if ( timer === 300 ){
+            timer = 0;
+        }
         render();
     }
 
