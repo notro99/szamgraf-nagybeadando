@@ -74,7 +74,7 @@
     var isTweening = false;
     var infoPanel = document.getElementById("info-panel");
     var timer = 0;
-    
+
     loadObjectsFromBlender();
 
     function loadObjectsFromBlender(){
@@ -404,7 +404,7 @@
             let jf6 = new THREE.Mesh(geometry6, varfalMaterial);
             let jf7 = new THREE.Mesh(geometry6, varfalMaterial);
             let jf8 = new THREE.Mesh(geometry6, varfalMaterial);
-            let jf9 = new THREE.Mesh(geometry6, varfalMaterial);
+
 
 
             var geometry5 = new THREE.PlaneGeometry(300, 300, 1);
@@ -663,12 +663,12 @@
                 scene.add(jf6);
                 scene.add(jf7);
                 scene.add(jf8);
-                scene.add(jf9);}
+            }
 
             shadowCast()
 
             function shadowCast() {
-                var array = [mesh4, mesh5, mesh6, mesh7, mesh8, mesh9, mesh10, mesh11, mesh12, mesh13, mesh14, mesh15, mesh16, mesh17, mesh18, mesh19, mesh20, b1, b2, b3, b4, b5, b6, b7, b8, b9, j1, j2, j3, j4, j5, j6, j7, j8, j9, jf1, jf2, jf3, jf4, jf5, jf6, jf7, jf8, jf9];
+                var array = [mesh4, mesh5, mesh6, mesh7, mesh8, mesh9, mesh10, mesh11, mesh12, mesh13, mesh14, mesh15, mesh16, mesh17, mesh18, mesh19, mesh20, b1, b2, b3, b4, b5, b6, b7, b8, b9, j1, j2, j3, j4, j5, j6, j7, j8, j9, jf1, jf2, jf3, jf4, jf5, jf6, jf7, jf8];
 
                 for (let i = 0; i < array.length; i++) {
                     array[i].receiveShadow = true;
