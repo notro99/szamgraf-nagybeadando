@@ -69,185 +69,189 @@
     var amb, point1,tuzFeny;
     var controls;
     var szekerControl;
-    var geometry2, geometry, material,material2,material3, mesh, mesh2;
-    var controls2;
+    var geometry2, geometry,geometry6, material,material2, mesh, mesh2;
     var geometry3,mesh3;
     var isTweening = false;
     var infoPanel = document.getElementById("info-panel");
     var timer = 0;
-    loaderErdo();
 
-    function loaderErdo() {
-        var OBJFile = 'assets/models/erdo.obj';
-        var MTLFile = 'assets/models/erdo.mtl';
+    loadObjectsFromBlender();
 
-        new MTLLoader()
-            .load(MTLFile, function (materials) {
-                materials.preload();
-                new OBJLoader()
-                    .setMaterials(materials)
-                    .load(OBJFile, function (object) {
-                        groupLoaded = object;
-                        console.log(object);
+    function loadObjectsFromBlender(){
+        loaderErdo();
+        function loaderErdo() {
+            var OBJFile = 'assets/models/erdo.obj';
+            var MTLFile = 'assets/models/erdo.mtl';
 
-                        object.traverse(function (child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.scale.set(1,1, 1);
-                                groupLoaded.position.set(-60, -5, -80);
-                            }
+            new MTLLoader()
+                .load(MTLFile, function (materials) {
+                    materials.preload();
+                    new OBJLoader()
+                        .setMaterials(materials)
+                        .load(OBJFile, function (object) {
+                            groupLoaded = object;
+                            console.log(object);
+
+                            object.traverse(function (child) {
+                                if (child instanceof THREE.Mesh) {
+                                    child.scale.set(1,1, 1);
+                                    groupLoaded.position.set(-60, -5, -80);
+                                }
+                            });
+
+                            loaderSzeker();
                         });
+                });
+        }
+        function loaderSzeker() {
+            var OBJFile = 'assets/models/szeker.obj';
+            var MTLFile = 'assets/models/szeker.mtl';
 
-                        loaderSzeker();
-                    });
-            });
-    }
-    function loaderSzeker() {
-        var OBJFile = 'assets/models/szeker.obj';
-        var MTLFile = 'assets/models/szeker.mtl';
+            new MTLLoader()
+                .load(MTLFile, function (materials) {
+                    materials.preload();
+                    new OBJLoader()
+                        .setMaterials(materials)
+                        .load(OBJFile, function (object) {
+                            szekerLoaded = object;
+                            console.log(object);
 
-        new MTLLoader()
-            .load(MTLFile, function (materials) {
-                materials.preload();
-                new OBJLoader()
-                    .setMaterials(materials)
-                    .load(OBJFile, function (object) {
-                        szekerLoaded = object;
-                        console.log(object);
+                            object.traverse(function (child) {
+                                if (child instanceof THREE.Mesh) {
+                                    child.scale.set(2,2, 2);
+                                    szekerLoaded.position.set(-35, -7.75, -30);
+                                }
+                            });
 
-                        object.traverse(function (child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.scale.set(2,2, 2);
-                                szekerLoaded.position.set(-35, -7.75, -30);
-                            }
+                            loaderHazak();
                         });
+                });
+        }
+        function loaderHazak() {
+            var OBJFile = 'assets/models/kishaz.obj';
+            var MTLFile = 'assets/models/kishaz.mtl';
 
-                        loaderHazak();
-                    });
-            });
-    }
-    function loaderHazak() {
-        var OBJFile = 'assets/models/kishaz.obj';
-        var MTLFile = 'assets/models/kishaz.mtl';
+            new MTLLoader()
+                .load(MTLFile, function (materials) {
+                    materials.preload();
+                    new OBJLoader()
+                        .setMaterials(materials)
+                        .load(OBJFile, function (object) {
+                            hazakLoaded = object;
+                            console.log(object);
 
-        new MTLLoader()
-            .load(MTLFile, function (materials) {
-                materials.preload();
-                new OBJLoader()
-                    .setMaterials(materials)
-                    .load(OBJFile, function (object) {
-                        hazakLoaded = object;
-                        console.log(object);
+                            object.traverse(function (child) {
+                                if (child instanceof THREE.Mesh) {
+                                    child.scale.set(0.5,0.5, 0.5);
+                                    hazakLoaded.position.set(20, -7.75, -20);
+                                }
+                            });
 
-                        object.traverse(function (child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.scale.set(0.5,0.5, 0.5);
-                                hazakLoaded.position.set(20, -7.75, -20);
-                            }
+                            loadFirepit();
                         });
+                });
+        }
 
-                        loadFirepit();
-                    });
-            });
-    }
+        function loadFirepit() {
+            var OBJFile = 'assets/models/tuz.obj';
+            var MTLFile = 'assets/models/tuz.mtl';
 
-    function loadFirepit() {
-        var OBJFile = 'assets/models/tuz.obj';
-        var MTLFile = 'assets/models/tuz.mtl';
+            new MTLLoader()
+                .load(MTLFile, function (materials) {
+                    materials.preload();
+                    new OBJLoader()
+                        .setMaterials(materials)
+                        .load(OBJFile, function (object) {
+                            pitLoaded = object;
+                            console.log(object);
 
-        new MTLLoader()
-            .load(MTLFile, function (materials) {
-                materials.preload();
-                new OBJLoader()
-                    .setMaterials(materials)
-                    .load(OBJFile, function (object) {
-                        pitLoaded = object;
-                        console.log(object);
+                            object.traverse(function (child) {
+                                if (child instanceof THREE.Mesh) {
+                                    child.scale.set(1,1, 1);
+                                    pitLoaded.position.set(20, -7, -20);
+                                }
+                            });
 
-                        object.traverse(function (child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.scale.set(1,1, 1);
-                                pitLoaded.position.set(20, -7, -20);
-                            }
+                            loadFire();
                         });
+                });
+        }
 
-                        loadFire();
-                    });
-            });
-    }
+        function loadFire() {
+            var OBJFile = 'assets/models/tuz_lang.obj';
+            var MTLFile = 'assets/models/tuz_lang.mtl';
 
-    function loadFire() {
-        var OBJFile = 'assets/models/tuz_lang.obj';
-        var MTLFile = 'assets/models/tuz_lang.mtl';
+            new MTLLoader()
+                .load(MTLFile, function (materials) {
+                    materials.preload();
+                    new OBJLoader()
+                        .setMaterials(materials)
+                        .load(OBJFile, function (object) {
+                            langLoaded = object;
+                            console.log(object);
 
-        new MTLLoader()
-            .load(MTLFile, function (materials) {
-                materials.preload();
-                new OBJLoader()
-                    .setMaterials(materials)
-                    .load(OBJFile, function (object) {
-                        langLoaded = object;
-                        console.log(object);
+                            object.traverse(function (child) {
+                                if (child instanceof THREE.Mesh) {
+                                    child.scale.set(2.5,2.5, 2.5);
+                                    langLoaded.position.set(20, -5.5, -20);
+                                }
+                            });
 
-                        object.traverse(function (child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.scale.set(2.5,2.5, 2.5);
-                                langLoaded.position.set(20, -5.5, -20);
-                            }
+                            loadNyaktilo();
                         });
+                });
+        }
 
-                        loadNyaktilo();
-                    });
-            });
-    }
+        function loadNyaktilo() {
+            var OBJFile = 'assets/models/nyaktilo.obj';
+            var MTLFile = 'assets/models/nyaktilo.mtl';
 
-    function loadNyaktilo() {
-        var OBJFile = 'assets/models/nyaktilo.obj';
-        var MTLFile = 'assets/models/nyaktilo.mtl';
+            new MTLLoader()
+                .load(MTLFile, function (materials) {
+                    materials.preload();
+                    new OBJLoader()
+                        .setMaterials(materials)
+                        .load(OBJFile, function (object) {
+                            nyaktiloLoaded = object;
+                            console.log(object);
 
-        new MTLLoader()
-            .load(MTLFile, function (materials) {
-                materials.preload();
-                new OBJLoader()
-                    .setMaterials(materials)
-                    .load(OBJFile, function (object) {
-                        nyaktiloLoaded = object;
-                        console.log(object);
+                            object.traverse(function (child) {
+                                if (child instanceof THREE.Mesh) {
+                                    child.scale.set(1,1, 1);
+                                    nyaktiloLoaded.position.set(-30, -6, 20);
+                                }
+                            });
 
-                        object.traverse(function (child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.scale.set(1,1, 1);
-                                nyaktiloLoaded.position.set(-30, -6, 20);
-                            }
+                            loadPenge();
                         });
+                });
+        }
 
-                        loadPenge();
-                    });
-            });
-    }
+        function loadPenge() {
+            var OBJFile = 'assets/models/penge.obj';
+            var MTLFile = 'assets/models/penge.mtl';
 
-    function loadPenge() {
-        var OBJFile = 'assets/models/penge.obj';
-        var MTLFile = 'assets/models/penge.mtl';
+            new MTLLoader()
+                .load(MTLFile, function (materials) {
+                    materials.preload();
+                    new OBJLoader()
+                        .setMaterials(materials)
+                        .load(OBJFile, function (object) {
+                            pengeLoaded = object;
+                            console.log(object);
 
-        new MTLLoader()
-            .load(MTLFile, function (materials) {
-                materials.preload();
-                new OBJLoader()
-                    .setMaterials(materials)
-                    .load(OBJFile, function (object) {
-                        pengeLoaded = object;
-                        console.log(object);
+                            object.traverse(function (child) {
+                                if (child instanceof THREE.Mesh) {
+                                    child.scale.set(1,1, 1);
+                                    pengeLoaded.position.set(-30, -6, 20);
+                                }
+                            });
 
-                        object.traverse(function (child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.scale.set(1,1, 1);
-                                pengeLoaded.position.set(-30, -6, 20);
-                            }
+                            init();
                         });
+                });
+        }
 
-                        init();
-                    });
-            });
     }
 
     function init() {
@@ -294,12 +298,7 @@
 
         //////////////////////////MATERIALS//////////////////////////////////
         material = new THREE.MeshPhongMaterial({color: 0xd4b866, wireframe: false});
-
-        //var varfalMaterial = new THREE.MeshPhongMaterial({color: 0xababab, wireframe: false});
-
         material2 = new THREE.MeshPhongMaterial({color: 0x258a2f, wireframe: false});
-
-        material3 = new THREE.MeshPhongMaterial({color: 0x92abf0, wireframe: false});
         var material3 = new THREE.MeshPhongMaterial({
             color: 0xa0adaf,
             shininess: 80,
@@ -335,10 +334,6 @@
         point1.position.set(30,30,30);
         scene.add(point1);
 
-        var pointHelper = new THREE.PointLightHelper(tuzFeny, 12, 0xffffff);
-        scene.add(pointHelper);
-
-
         renderer.shadowMap.enabled = true;
         //////////////////////LIGHTS///////////////////////////////////////////////////
 
@@ -352,6 +347,8 @@
             geometry5 = new THREE.BoxGeometry(10, 25, 10, 2, 2, 2); //bastyak
             geometry6 = new THREE.BoxGeometry(2, 2, 2, 2, 2, 2);
 
+            var kapu = new THREE.BoxGeometry(5, 20, 40, 2, 2, 2);
+
 
             mesh = new THREE.Mesh(geometry, material);
             mesh2 = new THREE.Mesh(geometry2, material);
@@ -359,8 +356,8 @@
             let mesh4 = new THREE.Mesh(geometry4, varfalMaterial);        //falak
             var mesh5 = new THREE.Mesh(geometry4, varfalMaterial);
             let mesh6 = new THREE.Mesh(geometry4, varfalMaterial);
-            var mesh7 = new THREE.Mesh(geometry4, varfalMaterial);
-
+            var mesh7 = new THREE.Mesh(kapu, varfalMaterial);
+            var mesh72 = new THREE.Mesh(kapu, varfalMaterial);
 
             let mesh8 = new THREE.Mesh(geometry5, varfalMaterial);   //bastyak
             let mesh9 = new THREE.Mesh(geometry5, varfalMaterial);
@@ -434,13 +431,6 @@
             var cone2 = new THREE.Mesh(geometry5, material3);
             scene.add(cone2);
 
-            var geometry6 = new THREE.BoxGeometry(1, 1, 1);
-            var box = new THREE.Mesh(geometry6, material3);
-            // scene.add( box );
-            box.position.set(-5, -5, 8);
-            box.castShadow = true;
-            box.receiveShadow = true;
-
             cone.position.y = 9.5;
             cone.position.x = 5;
             cone.position.z = 20;
@@ -475,6 +465,11 @@
 
             mesh7.position.z = -50;
             mesh7.rotation.y = THREE.MathUtils.degToRad(90);
+            mesh7.position.x = -35;
+
+            mesh72.position.z = -50;
+            mesh72.rotation.y = THREE.MathUtils.degToRad(90);
+            mesh72.position.x = 35;
 
             mesh8.position.x = 50;
             mesh8.position.z = 50;
@@ -630,6 +625,7 @@
             scene.add(mesh5);
             scene.add(mesh6);
             scene.add(mesh7);
+            scene.add(mesh72);
             scene.add(mesh8);
             scene.add(mesh9);
             scene.add(mesh10);
