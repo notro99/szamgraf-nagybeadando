@@ -18,7 +18,7 @@
             display:block;
             color: yellow;
         }
-        #info {
+        #info{
             position: absolute;
             top: 30px;
             left: 10px;
@@ -29,6 +29,7 @@
             color: cyan;
             opacity: 1.0;
         }
+
     </style>
 </head>
 
@@ -42,6 +43,9 @@
         <p id="id">H0R299</p>
         <p id="szak">Mérnökinformatika</p>
         <p id="idopont">2020/2021 - I.</p>
+        <p id="gomboki" style="color: #2eff15;">I - info panel megjelenítés</p>
+        <p id="gombok1"style="color: #2eff15;">1 - Éjszaka</p>
+        <p id="gombok2"style="color: #2eff15;">1 - Nappal</p>
     </div>
 </div>
 <script type="module">
@@ -632,9 +636,7 @@
 
 
     function handleKeyDown( event ) {
-        // Lekérjük a megnyomott billentyűt
         console.log( 'keydown: ' + event.keyCode );
-
         // 1 billentyű Tűz eltüntetés
         if( event.keyCode == 49) {
             scene.add(langLoaded);
