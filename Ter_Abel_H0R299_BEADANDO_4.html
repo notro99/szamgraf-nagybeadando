@@ -242,8 +242,11 @@
 
         //////////////////////////MATERIALS//////////////////////////////////
         material = new THREE.MeshPhongMaterial({color: 0xd4b866, wireframe: false});
-        var varfalMaterial = new THREE.MeshPhongMaterial({color: 0xababab, wireframe: false});
+
+        //var varfalMaterial = new THREE.MeshPhongMaterial({color: 0xababab, wireframe: false});
+
         material2 = new THREE.MeshPhongMaterial({color: 0x258a2f, wireframe: false});
+
         material3 = new THREE.MeshPhongMaterial({color: 0x92abf0, wireframe: false});
         var material3 = new THREE.MeshPhongMaterial({
             color: 0xa0adaf,
@@ -252,6 +255,19 @@
             side: THREE.FrontSide,
             wireframe: false
         });
+
+        var grassTextureLoader = new THREE.TextureLoader();
+        var grassTexture = grassTextureLoader.load( 'assets/models/grass.jpg' );
+        var grassMaterial = new THREE.MeshPhongMaterial( { side: THREE.DoubleSide } );
+        grassMaterial.map = grassTexture;
+
+
+        var wallTextureLoader = new THREE.TextureLoader();
+        var wallTexture = wallTextureLoader.load( 'assets/models/wall.png' );
+        var varfalMaterial = new THREE.MeshPhongMaterial( { side: THREE.DoubleSide } );
+        varfalMaterial.map = wallTexture;
+
+
         //////////////////////////MATERIALS//////////////////////////////////
 
         //////////////////////LIGHTS///////////////////////////////////////////////////
@@ -350,7 +366,7 @@
             }
 
             var geometry5 = new THREE.PlaneGeometry(300, 300, 1);
-            var plane = new THREE.Mesh(geometry5, material2);
+            var plane = new THREE.Mesh(geometry5, grassMaterial);
             scene.add(plane);
             plane.rotation.x = THREE.MathUtils.degToRad(-90);
             plane.position.y = -7.5;
