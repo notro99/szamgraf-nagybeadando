@@ -4,11 +4,6 @@
     <list default="true" id="2f53d38c-8d13-4d7c-8998-ea58aaf0a1a4" name="Default Changelist" comment="Bastyak kesz">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Ter_Abel_H0R299_BEADANDO_4.html" beforeDir="false" afterPath="$PROJECT_DIR$/Ter_Abel_H0R299_BEADANDO_4.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/models/erdo.blend" beforeDir="false" afterPath="$PROJECT_DIR$/assets/models/erdo.blend" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/models/szeker.blend" beforeDir="false" afterPath="$PROJECT_DIR$/assets/models/szeker.blend" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/models/szeker.blend1" beforeDir="false" afterPath="$PROJECT_DIR$/assets/models/szeker.blend1" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/models/szeker.mtl" beforeDir="false" afterPath="$PROJECT_DIR$/assets/models/szeker.mtl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/models/szeker.obj" beforeDir="false" afterPath="$PROJECT_DIR$/assets/models/szeker.obj" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,7 +18,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Peldatar" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -56,6 +51,7 @@
       <workItem from="1606252295958" duration="5241000" />
       <workItem from="1606258072466" duration="2484000" />
       <workItem from="1606419194429" duration="13472000" />
+      <workItem from="1606517672405" duration="6603000" />
     </task>
     <servers />
   </component>
