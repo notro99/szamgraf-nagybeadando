@@ -1,0 +1,11 @@
+Tér Ábel - H0R299
+2020.12.02.
+
+Blender modellezés
+Blenderben több objektumot modelleztem le. Ezek között van a kis falu, tűzrakóval, kúttal, a szekér, az erdő, valamint a guillotinet.
+Ezek a legalapabb objektumokból épülnek fel.
+Fa:két gúla,egy henger
+Kő:Egy kocka ami a "sculping" módban módosítva lett különböző műveletekkel.
+Szekér: kockákból indult és addig lettek formázva az építőelemek amíg megfelelő nem lett. A kerekek két egymásból kivágott hengerből jöttek össze, valamint néhány vékony hengerből.
+
+Falu: Szintén az alapműveletekkel lettek módosítva az elemek, amik itt is szintén főleg a kocka és a henger volt.  
